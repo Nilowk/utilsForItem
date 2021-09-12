@@ -1,0 +1,92 @@
+package fr.nilowk.itembuilder.utils;
+
+import fr.nilowk.itembuilder.utils.utils.TriMap;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ItemBuilder {
+
+    private Material material;
+    private String name;
+    private String localizedName;
+    private Integer customModelData;
+    private List<String> description;
+    private TriMap<Enchantment, Integer, Boolean> enchantments;
+    private ItemFlag[] itemFlags;
+    private boolean unbreakable;
+
+    public ItemBuilder(Material material, boolean unbreakable) {
+        this.material = material;
+        this.unbreakable = unbreakable;
+        this.enchantments = new TriMap<>();
+    }
+
+    public ItemBuilder setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public ItemBuilder setDescription(String... line) {
+        List<String> description = new ArrayList<>();
+        for (String str : line) {
+            description.add(str);
+        }
+        this.description = description;
+        return this;
+    }
+
+    public ItemBuilder setLocalizedName(String localizedName) {
+        this.localizedName = localizedName;
+        return this;
+    }
+
+    public ItemBuilder setCustomModelData(int customModelData) {
+        this.customModelData = customModelData;
+        return this;
+    }
+
+    public ItemBuilder addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction) {
+        enchantments.put(enchantment, level, ignoreLevelRestriction);
+        return this;
+    }
+
+   public ItemBuilder addEnchantments(TriMap<Enchantment, Integer, Boolean> enchantments) {
+        enchantments.forEachKeys(k -> {
+            this.enchantments.put(k, enchantments.getValue(k), enchantments.getSecondValue(k));
+        });
+        return this;
+   }
+
+   public ItemBuilder addItemFlags(ItemFlag... itemFlags) {
+        this.itemFlags = itemFlags;
+        return this;
+   }
+
+    public ItemStack build() {
+        ItemStack item = new ItemStack(material);
+        ItemMeta itM = item.getItemMeta();
+        if (name != null) itM.setDisplayName(name);
+        if (description != null) itM.setLore(description);
+        if (localizedName != null) itM.setLocalizedName(localizedName);
+        if (customModelData != null) itM.setCustomModelData(customModelData);
+        enchantments.forEachKeys(key -> {
+            itM.addEnchant(key, enchantments.getValue(key), enchantments.getSecondValue(key));
+        });
+        if (itemFlags != null) itM.addItemFlags(itemFlags);
+        itM.setUnbreakable(unbreakable);
+        item.setItemMeta(itM);
+        return item;
+    }
+
+}
