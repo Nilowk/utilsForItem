@@ -2,18 +2,17 @@ package fr.nilowk.itembuilder.utils;
 
 import fr.nilowk.itembuilder.utils.utils.TriMap;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionData;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ItemBuilder {
 
@@ -24,6 +23,7 @@ public class ItemBuilder {
     private List<String> description;
     private TriMap<Enchantment, Integer, Boolean> enchantments;
     private ItemFlag[] itemFlags;
+    private HashMap<Attribute, AttributeModifier> attributes;
     private boolean unbreakable;
 
     public ItemBuilder(Material material, boolean unbreakable) {
@@ -73,6 +73,18 @@ public class ItemBuilder {
         return this;
    }
 
+   public ItemBuilder addAttributeModifier(Attribute attribute, AttributeModifier attributeModifier) {
+        this.attributes.put(attribute, attributeModifier);
+        return this;
+   }
+
+    public ItemBuilder addAttributeModifiers(HashMap<Attribute, AttributeModifier> attributes) {
+        for (Map.Entry<Attribute, AttributeModifier> attribute : attributes.entrySet()) {
+            this.attributes.put(attribute.getKey(), attribute.getValue());
+        }
+        return this;
+    }
+
     public ItemStack build() {
         ItemStack item = new ItemStack(material);
         ItemMeta itM = item.getItemMeta();
@@ -80,10 +92,17 @@ public class ItemBuilder {
         if (description != null) itM.setLore(description);
         if (localizedName != null) itM.setLocalizedName(localizedName);
         if (customModelData != null) itM.setCustomModelData(customModelData);
-        enchantments.forEachKeys(key -> {
-            itM.addEnchant(key, enchantments.getValue(key), enchantments.getSecondValue(key));
-        });
+        if (enchantments != null) {
+            enchantments.forEachKeys(key -> {
+                itM.addEnchant(key, enchantments.getValue(key), enchantments.getSecondValue(key));
+            });
+        }
         if (itemFlags != null) itM.addItemFlags(itemFlags);
+        if (attributes != null) {
+            for (Map.Entry<Attribute, AttributeModifier> attribute : attributes.entrySet()) {
+                itM.addAttributeModifier(attribute.getKey(), attribute.getValue());
+            }
+        }
         itM.setUnbreakable(unbreakable);
         item.setItemMeta(itM);
         return item;
