@@ -18,9 +18,9 @@ public class ItemBuilder {
 
     private Material material;
     private String name;
+    private List<String> description;
     private String localizedName;
     private Integer customModelData;
-    private List<String> description;
     private TriMap<Enchantment, Integer, Boolean> enchantments;
     private ItemFlag[] itemFlags;
     private HashMap<Attribute, AttributeModifier> attributes;
@@ -30,6 +30,7 @@ public class ItemBuilder {
         this.material = material;
         this.unbreakable = unbreakable;
         this.enchantments = new TriMap<>();
+        this.attributes = new HashMap<>();
     }
 
     public ItemBuilder setName(String name) {
@@ -37,9 +38,9 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder setDescription(String... line) {
+    public ItemBuilder setDescription(String... lines) {
         List<String> description = new ArrayList<>();
-        for (String str : line) {
+        for (String str : lines) {
             description.add(str);
         }
         this.description = description;
